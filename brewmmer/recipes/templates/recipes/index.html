@@ -1,0 +1,22 @@
+{% if recipes_list %}
+    <ul>
+    {% for recipe in recipes_list %}
+        <li>
+          <a target="_blank" href="/admin/recipes/recipe/{{ recipe.id }}/">{{ recipe.name }}</a>
+          <ul>
+            {% for water in recipe.water %}
+              <li>{{ water.name }}</li>
+            {% endfor %}
+            {% for malt in recipe.malt %}
+              <li>{{ malt.name }}</li>
+            {% endfor %}
+            {% for hop in recipe.hop %}
+              <li>{{ hop.name }}</li>
+            {% endfor %}
+          </ul>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No reciped are available.</p>
+{% endif %}
