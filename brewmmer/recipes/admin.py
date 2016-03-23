@@ -2,7 +2,22 @@ from django.contrib import admin
 
 from .models import Recipe, Water, Malt, Hop
 
-admin.site.register(Recipe)
-admin.site.register(Water)
-admin.site.register(Malt)
-admin.site.register(Hop)
+class WaterInline(admin.TabularInline):
+    model = Water
+    extra = 0
+
+class MaltInline(admin.TabularInline):
+    model = Malt
+    extra = 0
+
+class HopInline(admin.TabularInline):
+    model = Hop
+    extra = 0
+
+class RecipeAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Beer information', {'fields': ['name', 'beer_type']})
+    ]
+    inlines = [WaterInline, MaltInline, HopInline]
+
+admin.site.register(Recipe, RecipeAdmin)

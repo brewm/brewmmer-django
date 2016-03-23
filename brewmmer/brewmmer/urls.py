@@ -20,4 +20,6 @@ urlpatterns = [
     url(r'^recipes/', include('recipes.urls')),
     url(r'^brew/', include('brew.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^chaining/', include('smart_selects.urls')),
+    url(r'^nested_admin/', include('nested_admin.urls')),
 ]
