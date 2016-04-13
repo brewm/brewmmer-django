@@ -12,57 +12,33 @@ class Brew(models.Model):
     name = models.CharField(max_length=200)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     @property
-    def mash_step(self):
+    def mash_steps(self):
         return MashStep.objects.filter(brew=self)
     @property
-    def boil_step(self):
-        return BoilStep.objects.filter(brew=self)    
+    def boil_steps(self):
+        return BoilStep.objects.filter(brew=self) 
 
 class MashStep(models.Model):
     brew = models.ForeignKey(Brew, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    temperature = models.DecimalField(max_digits=5, decimal_places=2)
     duration = models.DecimalField(max_digits=5, decimal_places=2)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2)
     @property
-    def water(self):
-        return WaterIngredient.objects.filter(brew=self) 
-    @property
-    def malt(self):
-        return MaltIngredient.objects.filter(brew=self)
+    def ingredients(self):
+        return MashIngredient.objects.filter(mash_step=self)
 
-class WaterIngredient(models.Model):
+class MashIngredient(models.Model):
     mash_step = models.ForeignKey(MashStep, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    water = ChainedForeignKey(
-        Water, 
-        chained_field="recipe",
-        chained_model_field="recipe", 
-        show_all=False, 
-        auto_choose=True
-    )
-    water_volume = models.DecimalField(max_digits=5, decimal_places=2)
-
-class MaltIngredient(models.Model):
-    mash_step = models.ForeignKey(MashStep, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    Malt = ChainedForeignKey(
-        Malt, 
-        chained_field="recipe",
-        chained_model_field="recipe", 
-        show_all=False, 
-        auto_choose=True
-    )
-    malt_weight = models.DecimalField(max_digits=5, decimal_places=2)
+    name =  models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=5, decimal_places=2)
 
 class BoilStep(models.Model):
     brew = models.ForeignKey(Brew, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    hop = ChainedForeignKey(
-        Hop, 
-        chained_field="recipe",
-        chained_model_field="recipe", 
-        show_all=False, 
-        auto_choose=True
-    )
-    hop_weight = models.DecimalField(max_digits=5, decimal_places=2)
     duration = models.DecimalField(max_digits=5, decimal_places=2)
+    @property
+    def ingredients(self):
+        return BoilIngredient.objects.filter(boil_step=self)
+
+class BoilIngredient(models.Model):
+    boil_step = models.ForeignKey(BoilStep, on_delete=models.CASCADE)
+    name =  models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=5, decimal_places=2)

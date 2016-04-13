@@ -4,11 +4,14 @@
 
 {% block content %}
 {# Display a form #}
-<form action="/brew/api/" method="post" class="form">
+<form action="/brew/api/" method="post" class="form-horizontal">
+  <legend>Create a brew</legend>
   {% csrf_token %}
-  {% bootstrap_form form %}
-  {% buttons %}
-    <button type="submit" value="create" class="btn btn-primary">Submit</button>
-  {% endbuttons %}
+  {% bootstrap_form form layout='horizontal' %}
+  <div class="form-group">
+      <div class="col-md-10 col-md-offset-2">
+        <button type="submit" value="create" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
 </form>
 {% endblock %}

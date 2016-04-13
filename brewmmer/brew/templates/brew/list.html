@@ -1,0 +1,46 @@
+{% extends "brew/base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+{% block title %}<h2>Brews</h2>{% endblock %}
+{% if brew_list %}
+	{% for brew in brew_list %}
+    	<div class="col-md-12">
+    		<h3><a href="/brew/{{ brew.id }}">{{ brew.name }}</a></h3>
+        	<h4>Mash Steps</h4>
+        	{% for mash_step in brew.mash_steps %} 	 	      	 	  
+ 	 	      	<div class="col-md-12 col-md-offset-1">
+	 	 	      	Duration: {{ mash_step.duration }}<br />
+	 	 	      	Temperature: {{ mash_step.temperature }}<br />
+	 	 	      	Ingredients: <br />
+	 	 	      	<ul>
+		 	 	      	{% for ingredient in mash_step.ingredients %}	 	 	   
+			 	 	      	<li>{{ ingredient.name }}: {{ ingredient.amount }}</li>
+			        	{% endfor %}
+		        	</ul>
+		       	</div> 
+        	{% endfor %}
+        </div>
+        <div class="col-md-12">
+        	{% for boil_step in brew.boil_steps %}
+ 	 	      	<h4>Boil Steps:</h4>
+ 	 	      	{% for boil_step in brew.boil_steps %} 	 	      	 	  
+	 	 	      	<div class="col-md-12 col-md-offset-1">
+		 	 	      	Duration: {{ boil_step.duration }}<br />
+		 	 	      	Ingredients: <br />
+		 	 	      	<ul>
+			 	 	      	{% for ingredient in boil_step.ingredients %}	 	 	   
+				 	 	      	<li>{{ ingredient.name }}: {{ ingredient.amount }}</li>
+				        	{% endfor %}
+			        	</ul>
+			       	</div> 
+        	{% endfor %} 
+        	{% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No brews are available.</p>
+{% endif %}
+
+{% endblock %}
