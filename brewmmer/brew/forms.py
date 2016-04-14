@@ -1,6 +1,5 @@
 from django import forms
 from django.forms import ModelForm
-from django.forms.models import inlineformset_factory
 
 from models import Recipe, Brew, MashIngredient, MashStep, BoilIngredient, BoilStep, Malt, Water, Hop
 
@@ -28,5 +27,3 @@ class CreateForm(forms.Form):
     	self.fields['water'].choices = [(r, r) for r in Water.objects.all()]
     	self.fields['malt'].choices = [(r, r) for r in Malt.objects.all()]
     	self.fields['hop'].choices = [(r, r) for r in Hop.objects.all()]
-
-MashStepFormSet = inlineformset_factory(Brew, MashStep, fields=('duration', 'temperature'))

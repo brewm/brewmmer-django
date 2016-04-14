@@ -1,0 +1,50 @@
+{% extends "brew/base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+{# Display a form #}
+<form action="/brew/create-mash/" method="post" class="form-horizontal">
+  <legend>Create mash steps</legend>
+  {% csrf_token %}
+  <div class="form-group">
+      <div class="col-md-10 col-md-offset-2">
+        <input id="brew_id" type="text" name="brew_id"></input>
+        <input id="duration" type="text" name="duration"></input>
+        <input id="temperature" type="text" name="temperature"></input>
+        <button id="submit" type="submit" value="create" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+</form>
+
+<script>
+	$("#submit").click(function(){
+		$.ajax({
+			type: "POST",
+			url: "/brew/create-mash/",
+			data: JSON.stringify(
+				{
+					"steps": [
+				        {
+				            "brew": $("#brew_id").val(),
+				            "duration": $("#duration").val(),
+				            "temperature": $("#temperature").val(),
+				            "ingredient": [
+				                {
+				                    "name": "water",
+				                    "amount": 10
+				                },
+				                {
+				                    "name": "malt",
+				                    "amount": 10
+				                }
+				            ]
+				        }
+				    ]
+				}),
+			contentType: "application/json; charset=utf-8"
+		})
+	})
+
+</script>
+{% endblock %}
