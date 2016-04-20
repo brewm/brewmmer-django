@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^list/$', views.list, name='list'),
     url(r'^(?P<brew_id>[0-9]+)/$', views.api, name='api'),
     url(r'^create-mash/$', views.create_mash, name='create-mash'),
+    url(r'^error/$', views.error, name='error'),
 ]

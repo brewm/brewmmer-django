@@ -5,46 +5,124 @@
 {% block content %}
 {# Display a form #}
 <form action="/brew/create-mash/" method="post" class="form-horizontal">
-  <legend>Create mash steps</legend>
-  {% csrf_token %}
-  <div class="form-group">
-      <div class="col-md-10 col-md-offset-2">
-        <input id="brew_id" type="text" name="brew_id"></input>
-        <input id="duration" type="text" name="duration"></input>
-        <input id="temperature" type="text" name="temperature"></input>
-        <button id="submit" type="submit" value="create" class="btn btn-primary">Submit</button>
-      </div>
-    </div>
+  	<legend>Create mash steps</legend>
+  	{% csrf_token %}
+	<div class="form-group">
+		<div class="col-md-10 col-md-offset-2">
+			<label>Brew ID</label><input id="brew_id" type="text" name="brew_id" value="15"></input></br >
+			<div class="mash_step_wrap">
+				<div class="mash_step">
+					<label>Mash Step:</label>
+					<a class="add_mash_step_button" onClick="addMashStepFields(event);">Add more</a><br />
+					<label>Duration</label><input class="mash_duration" type="text" name="mash_duration" value="10"></input></br >
+					<label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature" value="20"></input></br >
+
+					<div class="ingredients">
+						<label>Ingredients</label>
+						<a href="#" class="add_ingredient_button" onClick="addIngredientFields(event);">Add more</a><br />
+						<div class="ingredient">
+							<label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name" value="a"/>
+							<label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount" value="1"/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<button id="submit" type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
 </form>
 
 <script>
+	function getCookie(name) {
+	    var cookieValue = null;
+	    if (document.cookie && document.cookie != '') {
+	        var cookies = document.cookie.split(';');
+	        for (var i = 0; i < cookies.length; i++) {
+	            var cookie = jQuery.trim(cookies[i]);
+	            // Does this cookie string begin with the name we want?
+	            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+	                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+	                break;
+	            }
+	        }
+	    }
+	    return cookieValue;
+	}
+	var csrftoken = getCookie('csrftoken');
+
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+	        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	        }
+	    }
+	});
+
 	$("#submit").click(function(){
+		event.preventDefault();
+		var post_data = { 'steps': []};
+		$(".mash_step").each(function(index){
+        	step = {
+        		'brew': $("#brew_id").val(),
+        		'duration': $(this).children('.mash_duration').val(),
+	            'temperature': $(this).children('.mash_temperature').val(),
+	            "ingredients": []
+        	};
+        	$(this).children('.ingredients').children('.ingredient').each(function(index){
+				step.ingredients.push({
+					'name': $(this).children('.ingredient_name').val(),
+					'amount': $(this).children('.ingredient_amount').val()
+				});
+        	});
+        	post_data.steps.push(step);
+        });
+        console.log(post_data);
+
 		$.ajax({
 			type: "POST",
 			url: "/brew/create-mash/",
-			data: JSON.stringify(
-				{
-					"steps": [
-				        {
-				            "brew": $("#brew_id").val(),
-				            "duration": $("#duration").val(),
-				            "temperature": $("#temperature").val(),
-				            "ingredient": [
-				                {
-				                    "name": "water",
-				                    "amount": 10
-				                },
-				                {
-				                    "name": "malt",
-				                    "amount": 10
-				                }
-				            ]
-				        }
-				    ]
-				}),
-			contentType: "application/json; charset=utf-8"
+			data: { "formdata": JSON.stringify(post_data) }
+		}).done(function (response) {
+			console.log(response)
+			window.location = response;
 		})
 	})
+
+
+	function addIngredientFields(event){ //on add input button click
+	    var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+		$(src).parent('div').append('<div class="ingredient"><label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name"/><label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount"/><a href="#" class="remove_ingredient" onClick="removeIngredient(event);">Remove</a></div>');
+    }
+
+    function removeIngredient(event){ //user click on remove text
+        event.preventDefault(); 
+        var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+        $(src).parent('div').remove();
+    }
+
+    function addMashStepFields(event){ //on add input button click
+	    var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+		$('.mash_step_wrap').append('<div class="mash_step"><label>Mash Step:</label></br /><label>Duration</label><input class="mash_duration" type="text" name="mash_duration" value="10"></input></br ><label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature" value="10"></input></br ><div class="ingredients"><label>Ingredients</label><a class="add_ingredient_button" onClick="addIngredientFields(event);">Add more</a><div class="ingredient"><label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name"/><label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount"/></div></div><a href="#" class="remove_mash_step" onClick="removeMashStepFields(event);">Remove</a></div>');
+    }
+
+    function removeMashStepFields(event){ //user click on remove text
+        event.preventDefault(); 
+        var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+        $(src).parent('div').remove();
+    }
+
 
 </script>
 {% endblock %}

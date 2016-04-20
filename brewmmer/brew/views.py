@@ -8,6 +8,8 @@ from forms import CreateForm
 from django.http import HttpResponseRedirect
 from django.views.generic import CreateView
 
+import json
+
 def get_or_none(klass, object_id):
     o = None
     try:
@@ -18,6 +20,9 @@ def get_or_none(klass, object_id):
 
 def index(request):
   return HttpResponse("First view of Brew")
+
+def error(request):
+  return render(request, "brew/error.html")
 
 def create(request):
 	create_form = CreateForm()
@@ -65,12 +70,12 @@ def api(request, brew_id=None):
 """
 def create_mash(request):
   if request.method == "POST":
-    steps = request.POST['steps']
+    steps = json.loads(request.POST['formdata'])['steps']
     for step in steps:
       brew_id = step['brew']
       brew = get_or_none(Brew, brew_id)
       if brew is None:
-        return HttpResponse("No brew found with this ID: %s" % brew_id)
+        return HttpResponse("/brew/error")
       duration = step['duration']
       temperature = step['temperature']
       mash_step = MashStep.objects.create(brew=brew, duration=duration, temperature=temperature)
@@ -82,7 +87,7 @@ def create_mash(request):
         # TODO: check if ingredient is from the recipe
         # https://docs.djangoproject.com/en/1.9/ref/models/querysets/#select-related
         ingredient = MashIngredient.objects.create(mash_step=mash_step, name=name, amount=amount)
-      return HttpResponse("SUCCESS") 
+    return HttpResponse("/brew/%s" % brew_id)
   if request.method == "GET":
     return render(request, "brew/create_mash_steps.html")
 
