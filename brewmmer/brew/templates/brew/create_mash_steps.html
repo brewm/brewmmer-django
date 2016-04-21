@@ -10,18 +10,7 @@
 	<div class="form-group">
 		<div class="col-md-10 col-md-offset-2">
 			<div class="mash_step_wrap">
-				<div class="mash_step">
-					<label>Mash Step:</label>
-					<a class="add_mash_step_button" onClick="addMashStepFields(event);">Add more</a><br />
-					<label>Duration</label><input class="mash_duration" type="text" name="mash_duration"></input></br >
-					<label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature"></input></br >
-
-					<div class="ingredients">
-						<label>Ingredients</label>
-						<a href="#" class="add_ingredient_button" onClick="addIngredientFields(event);">Add more</a><br />
-						{% include 'brew/ingredient_template.html' %}
-					</div>
-				</div>
+				{% include 'brew/mash_step_template.html' %}
 			</div>
 			<button id="submit" type="submit" class="btn btn-primary">Submit</button>
 		</div>
@@ -107,7 +96,7 @@
 	    var e = event || window.event;
   		var src = e.target || e.srcElement;
   		console.log(src)
-		$(src).parent('div').append('{% include "brew/ingredient_template.html" with show_remove=True %}');
+		$(src).parent('div').append('{% include "brew/ingredient_template.html" with show_remove_ingredient=True %}');
     }
 
     function removeIngredient(event){ //user click on remove text
@@ -122,7 +111,7 @@
 	    var e = event || window.event;
   		var src = e.target || e.srcElement;
   		console.log(src)
-		$('.mash_step_wrap').append('<div class="mash_step"><label>Mash Step:</label></br /><label>Duration</label><input class="mash_duration" type="text" name="mash_duration" value="10"></input></br ><label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature" value="10"></input></br ><div class="ingredients"><label>Ingredients</label><a class="add_ingredient_button" onClick="addIngredientFields(event);">Add more</a><div class="ingredient"><label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name"/><label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount"/></div></div><a href="#" class="remove_mash_step" onClick="removeMashStepFields(event);">Remove</a></div>');
+		$('.mash_step_wrap').append('{% include "brew/mash_step_template.html" with show_remove_mash_step=True %}');
     }
 
     function removeMashStepFields(event){ //user click on remove text
