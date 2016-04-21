@@ -9,21 +9,17 @@
   	{% csrf_token %}
 	<div class="form-group">
 		<div class="col-md-10 col-md-offset-2">
-			<label>Brew ID</label><input id="brew_id" type="text" name="brew_id" value="15"></input></br >
 			<div class="mash_step_wrap">
 				<div class="mash_step">
 					<label>Mash Step:</label>
 					<a class="add_mash_step_button" onClick="addMashStepFields(event);">Add more</a><br />
-					<label>Duration</label><input class="mash_duration" type="text" name="mash_duration" value="10"></input></br >
-					<label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature" value="20"></input></br >
+					<label>Duration</label><input class="mash_duration" type="text" name="mash_duration"></input></br >
+					<label>Temperature</label><input class="mash_temperature" type="text" name="mash_temperature"></input></br >
 
 					<div class="ingredients">
 						<label>Ingredients</label>
 						<a href="#" class="add_ingredient_button" onClick="addIngredientFields(event);">Add more</a><br />
-						<div class="ingredient">
-							<label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name" value="a"/>
-							<label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount" value="1"/>
-						</div>
+						{% include 'brew/ingredient_template.html' %}
 					</div>
 				</div>
 			</div>
@@ -33,6 +29,20 @@
 </form>
 
 <script>
+	var recipe = {}
+	recipe.waters = []
+
+	{% for water in brew.recipe.water %}
+		recipe.waters.push({
+			'{{ water.name }}': {{ water.volume }}
+		});
+	{% endfor %}
+	{% for malt in brew.recipe.malt %}
+		recipe.malts.push({
+			'{{ malt.name }}': {{ malt.weight }}
+		});
+	{% endfor %}
+
 	function getCookie(name) {
 	    var cookieValue = null;
 	    if (document.cookie && document.cookie != '') {
@@ -67,12 +77,12 @@
 		var post_data = { 'steps': []};
 		$(".mash_step").each(function(index){
         	step = {
-        		'brew': $("#brew_id").val(),
+        		'brew': {{ brew.id }},
         		'duration': $(this).children('.mash_duration').val(),
 	            'temperature': $(this).children('.mash_temperature').val(),
 	            "ingredients": []
         	};
-        	$(this).children('.ingredients').children('.ingredient').each(function(index){
+        	$(this).find('.ingredient').each(function(index){
 				step.ingredients.push({
 					'name': $(this).children('.ingredient_name').val(),
 					'amount': $(this).children('.ingredient_amount').val()
@@ -97,7 +107,7 @@
 	    var e = event || window.event;
   		var src = e.target || e.srcElement;
   		console.log(src)
-		$(src).parent('div').append('<div class="ingredient"><label>Name:</label><input type="text" class="ingredient_name" name="ingredient_name"/><label>Amount:</label><input type="text" class="ingredient_amount" name="ingredient_amount"/><a href="#" class="remove_ingredient" onClick="removeIngredient(event);">Remove</a></div>');
+		$(src).parent('div').append('{% include "brew/ingredient_template.html" with show_remove=True %}');
     }
 
     function removeIngredient(event){ //user click on remove text

@@ -31,7 +31,7 @@ def create(request):
 def api(request, brew_id=None):
   if request.method == "POST":
     brew = Brew.objects.create(name=request.POST['brew_name'], recipe=Recipe.objects.get(name=request.POST['recipe']))
-    return HttpResponse("SUCCESS")
+    return render(request, "brew/create_mash_steps.html", {"brew": brew})
   if request.method == "GET":
     try:
       brew = Brew.objects.get(id=brew_id)
