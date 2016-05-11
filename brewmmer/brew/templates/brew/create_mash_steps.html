@@ -19,17 +19,15 @@
 
 <script>
 	var recipe = {}
-	recipe.waters = []
+	recipe.waters = {}
+	recipe.malts = {}
 
 	{% for water in brew.recipe.water %}
-		recipe.waters.push({
-			'{{ water.name }}': {{ water.volume }}
-		});
+		recipe.waters['{{ water.name }}'] = {{ water.volume }};
 	{% endfor %}
+
 	{% for malt in brew.recipe.malt %}
-		recipe.malts.push({
-			'{{ malt.name }}': {{ malt.weight }}
-		});
+		recipe.malts['{{ malt.name }}'] = {{ malt.weight }};
 	{% endfor %}
 
 	function getCookie(name) {
@@ -61,9 +59,21 @@
 	    }
 	});
 
+	$("select").change(function(e) {
+		amount = recipe.waters[$(this).val()] || recipe.malts[$(this).val()]
+		$(this).parent().find("input").val(amount)
+	})
+
 	$("#submit").click(function(){
 		event.preventDefault();
+		
+		ingredients_total = $.extend({}, recipe.malts, recipe.waters)
+        for (var i in ingredients_total) {
+        	ingredients_total[i] = 0
+        }
+
 		var post_data = { 'steps': []};
+
 		$(".mash_step").each(function(index){
         	step = {
         		'brew': {{ brew.id }},
@@ -72,14 +82,27 @@
 	            "ingredients": []
         	};
         	$(this).find('.ingredient').each(function(index){
+				ing_name = $(this).children('.ingredient_name').val()
+				ing_amount = $(this).children('.ingredient_amount').val()
+
+				ingredients_total[ing_name] += parseFloat(ing_amount)
+
 				step.ingredients.push({
-					'name': $(this).children('.ingredient_name').val(),
-					'amount': $(this).children('.ingredient_amount').val()
+					'name': ing_name,
+					'amount': ing_amount
 				});
         	});
         	post_data.steps.push(step);
         });
-        console.log(post_data);
+
+        console.log(ingredients_total);
+
+        for (var i in ingredients_total) {
+        	if (ingredients_total[i] > recipe.waters[i] || ingredients_total[i] > recipe.malts[i]) {
+        		alert("insert error message here")
+        		return false
+        	}
+        }
 
 		$.ajax({
 			type: "POST",
