@@ -1,4 +1,6 @@
 Django==1.9.4
 django-bootstrap-form==3.2
 django-bootstrap3==7.0.1
+django-nested-admin==2.2.6
+django-smart-selects==1.2.2
 six==1.10.0
