@@ -1,1 +1,1 @@
-web: gunicorn brewmmer.wsgi --log-file -
+web: cd brewmmer && gunicorn brewmmer.wsgi --log-file -
