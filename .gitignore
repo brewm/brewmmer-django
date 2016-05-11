@@ -2,3 +2,5 @@
 virtualenv/*
 migrations
 
+brewmmer/static/*
+
