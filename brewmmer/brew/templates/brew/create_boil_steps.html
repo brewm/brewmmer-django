@@ -1,0 +1,143 @@
+{% extends "brew/base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+{# Display a form #}
+<form action="/brew/create-boil/" method="post" class="form-horizontal">
+  	<legend>Create boil steps</legend>
+  	{% csrf_token %}
+	<div class="form-group">
+		<div class="col-md-10 col-md-offset-2">
+			<div class="boil_step_wrap">
+				{% include 'brew/boil_step_template.html' %}
+			</div>
+			<button id="submit" type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+<script>
+	var recipe = {}
+	recipe.hops = {}
+
+	{% for hop in brew.recipe.hop %}
+		recipe.hops['{{ hop.name }}'] = {{ hop.weight }};
+	{% endfor %}
+
+	function getCookie(name) {
+	    var cookieValue = null;
+	    if (document.cookie && document.cookie != '') {
+	        var cookies = document.cookie.split(';');
+	        for (var i = 0; i < cookies.length; i++) {
+	            var cookie = jQuery.trim(cookies[i]);
+	            // Does this cookie string begin with the name we want?
+	            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+	                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+	                break;
+	            }
+	        }
+	    }
+	    return cookieValue;
+	}
+	var csrftoken = getCookie('csrftoken');
+
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+	        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	        }
+	    }
+	});
+
+	$("select").change(function(e) {
+		amount = recipe.hops[$(this).val()] || recipe.hops[$(this).val()]
+		$(this).parent().find("input").val(amount)
+	})
+
+	$("#submit").click(function(){
+		event.preventDefault();
+		
+		ingredients_total = $.extend({}, recipe.hops)
+        for (var i in ingredients_total) {
+        	ingredients_total[i] = 0
+        }
+
+		var post_data = { 'steps': []};
+
+		$(".boil_step").each(function(index){
+        	step = {
+        		'brew': {{ brew.id }},
+        		'duration': $(this).children('.boil_duration').val(),
+	            "ingredients": []
+        	};
+        	$(this).find('.ingredient').each(function(index){
+				ing_name = $(this).children('.ingredient_name').val()
+				ing_amount = $(this).children('.ingredient_amount').val()
+
+				ingredients_total[ing_name] += parseFloat(ing_amount)
+
+				step.ingredients.push({
+					'name': ing_name,
+					'amount': ing_amount
+				});
+        	});
+        	post_data.steps.push(step);
+        });
+
+        console.log(ingredients_total);
+
+        for (var i in ingredients_total) {
+        	if (ingredients_total[i] > recipe.hops[i]) {
+        		alert("The amount of ingredients is more than the recipe contains.")
+        		return false
+        	}
+        }
+
+		$.ajax({
+			type: "POST",
+			url: "/brew/create-boil/",
+			data: { "formdata": JSON.stringify(post_data) }
+		}).done(function (response) {
+			window.location = response;
+		})
+	})
+
+
+	function addIngredientFields(event){ //on add input button click
+	    var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+		$(src).parent('div').append('{% include "brew/boil_ingredient_template.html" with show_remove_ingredient=True %}');
+    }
+
+    function removeIngredient(event){ //user click on remove text
+        event.preventDefault(); 
+        var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+        $(src).parent('div').remove();
+    }
+
+    function addBoilStepFields(event){ //on add input button click
+	    var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+		$('.boil_step_wrap').append('{% include "brew/boil_step_template.html" with show_remove_boil_step=True %}');
+    }
+
+    function removeBoilStepFields(event){ //user click on remove text
+        event.preventDefault(); 
+        var e = event || window.event;
+  		var src = e.target || e.srcElement;
+  		console.log(src)
+        $(src).parent('div').remove();
+    }
+
+
+</script>
+{% endblock %}

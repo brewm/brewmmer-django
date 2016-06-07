@@ -25,8 +25,9 @@ def error(request):
   return render(request, "brew/error.html")
 
 def create(request):
-	create_form = CreateForm()
-  	return render(request, "brew/create.html", {"form":create_form})
+  import pdb; pdb.set_trace()
+  create_form = CreateForm()
+  return render(request, "brew/create.html", {"form":create_form})
 
 def api(request, brew_id=None):
   if request.method == "POST":
@@ -71,6 +72,7 @@ def api(request, brew_id=None):
 def create_mash(request):
   if request.method == "POST":
     steps = json.loads(request.POST['formdata'])['steps']
+    brew = None
     for step in steps:
       brew_id = step['brew']
       brew = get_or_none(Brew, brew_id)
@@ -87,10 +89,33 @@ def create_mash(request):
         # TODO: check if ingredient is from the recipe
         # https://docs.djangoproject.com/en/1.9/ref/models/querysets/#select-related
         ingredient = MashIngredient.objects.create(mash_step=mash_step, name=name, amount=amount)
-    return HttpResponse("/brew/%s" % brew_id)
+    return HttpResponse("/brew/create-boil?brew={}".format(brew_id))
   if request.method == "GET":
     return render(request, "brew/create_mash_steps.html")
 
+def create_boil(request):
+  if request.method == "POST":
+    steps = json.loads(request.POST['formdata'])['steps']
+    brew = None
+    for step in steps:
+      brew_id = step['brew']
+      brew = get_or_none(Brew, brew_id)
+      if brew is None:
+        return HttpResponse("/brew/error")
+      duration = step['duration']
+      boil_step = BoilStep.objects.create(brew=brew, duration=duration)
+
+      ingredients = step['ingredients']
+      for ing in ingredients:
+        name = ing['name']
+        amount = ing['amount']
+        # TODO: check if ingredient is from the recipe
+        # https://docs.djangoproject.com/en/1.9/ref/models/querysets/#select-related
+        ingredient = BoilIngredient.objects.create(boil_step=boil_step, name=name, amount=amount)
+    return HttpResponse("/brew/%s" % brew_id)
+  if request.method == "GET":
+    brew_id = request.GET['brew']
+    return render(request, "brew/create_boil_steps.html", {'brew':Brew.objects.get(id=brew_id)})
 
 def list(request):
   brews = Brew.objects.all()

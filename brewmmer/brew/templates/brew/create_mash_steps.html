@@ -109,7 +109,6 @@
 			url: "/brew/create-mash/",
 			data: { "formdata": JSON.stringify(post_data) }
 		}).done(function (response) {
-			console.log(response)
 			window.location = response;
 		})
 	})
@@ -119,7 +118,7 @@
 	    var e = event || window.event;
   		var src = e.target || e.srcElement;
   		console.log(src)
-		$(src).parent('div').append('{% include "brew/ingredient_template.html" with show_remove_ingredient=True %}');
+		$(src).parent('div').append('{% include "brew/mash_ingredient_template.html" with show_remove_ingredient=True %}');
     }
 
     function removeIngredient(event){ //user click on remove text

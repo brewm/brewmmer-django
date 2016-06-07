@@ -2,11 +2,23 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
+{% load staticfiles %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+<link href="{% static 'sb-admin-2/bower_components/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+
+<!-- MetisMenu CSS -->
+<link href="{% static 'sb-admin-2/bower_components/metisMenu/dist/metisMenu.min.css' %}" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="{% static 'sb-admin-2/dist/css/sb-admin-2.css' %}" rel="stylesheet">
+
+<!-- Custom Fonts -->
+<link href="{% static 'sb-admin-2/bower_components/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
 
 <div class="page-header">
-  <h1>Brewmmer <small>Make your own brew</small></h1>
+  <h4>Brewmmer v0.1</h4>
 </div>
 
 <div class="container">
